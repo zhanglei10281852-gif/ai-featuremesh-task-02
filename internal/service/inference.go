@@ -49,11 +49,7 @@ func (s *InferenceService) PlanInferenceRun(ctx context.Context, input PlanInfer
 			if existing.RequestHash != hash {
 				return domain.ConflictError{Resource: "idempotency_key", Reason: "request payload differs"}
 			}
-			body := existing.ReplayBody()
-			if len(body) == 0 {
-				return fmt.Errorf("restore idempotent response: %w", domain.ErrConflict)
-			}
-			return json.Unmarshal(body, &run)
+			return json.Unmarshal(existing.ResponseBody, &run)
 		} else if !errors.Is(err, domain.ErrNotFound) {
 			return err
 		}
